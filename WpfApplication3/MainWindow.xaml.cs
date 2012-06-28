@@ -66,5 +66,10 @@ namespace DirectorySizeBrowser
             DirectorySizer arf = mainDock.DataContext as DirectorySizer;
             arf.FindSize();
         }
+
+        private void button_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

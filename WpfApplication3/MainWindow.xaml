@@ -60,7 +60,35 @@
             </TextBlock>
         </Grid>
         <ScrollViewer>
-            <ListBox BorderBrush="Black" BorderThickness="0" Name="Outside" ItemsSource="{Binding Path=SubDirs}">
+            <ListBox BorderBrush="Black" BorderThickness="0" Name="Outside">
+                <ListBox.ItemsSource>
+                    <x:Array x:Name="Hey" Type="{x:Type sys:String}">
+                        <sys:String>fiveeeeeeeeeeee</sys:String>
+                        <sys:String>Twoooo</sys:String>
+                        <sys:String>3</sys:String>
+                        <sys:String>four</sys:String>
+                        <sys:String>fiftyfe</sys:String>
+                        <sys:String>ronda</sys:String>
+                        <sys:String>fiveeeeeeeeeeee</sys:String>
+                        <sys:String>Twoooo</sys:String>
+                        <sys:String>3</sys:String>
+                        <sys:String>fiveeeeeeeeeeee</sys:String>
+                        <sys:String>Twoooo</sys:String>
+                        <sys:String>3</sys:String>
+                        <sys:String>fiveeeeeeeeeeee</sys:String>
+                        <sys:String>Twoooo</sys:String>
+                        <sys:String>3</sys:String>
+                        <sys:String>four</sys:String>
+                        <sys:String>fiftyfe</sys:String>
+                        <sys:String>ronda</sys:String>
+                        <sys:String>fiveeeeeeeeeeee</sys:String>
+                        <sys:String>Twoooo</sys:String>
+                        <sys:String>3</sys:String>
+                        <sys:String>fiveeeeeeeeeeee</sys:String>
+                        <sys:String>Twoooo</sys:String>
+                        <sys:String>3</sys:String>
+                    </x:Array>
+                </ListBox.ItemsSource>
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
                         <Setter Property="HorizontalAlignment" Value="Stretch" />
@@ -70,7 +98,7 @@
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Grid ShowGridLines="False" Height="43">
-                            <Button Click="browseDown_Button_Click">
+                            <Button Click="button_Click">
                                 <Button.Template>
                                     <ControlTemplate>
                                         <Grid ShowGridLines="True">
@@ -85,8 +113,8 @@
                                             <UniformGrid Columns="0" Rows="0" Grid.ColumnSpan="3">
                                                 <ProgressBar Value="54"/>
                                             </UniformGrid>
-                                            <TextBlock Style="{StaticResource Data}" Text="{Binding Path=Size}" Grid.Column="0" Grid.Row="0" />
-                                            <TextBlock Style="{StaticResource Data}" Text="{Binding Path=DirPath}" Grid.Column="1" Grid.Row="0" />
+                                            <TextBlock Style="{StaticResource Data}" Text="{Binding}" Grid.Column="0" Grid.Row="0" />
+                                            <TextBlock Style="{StaticResource Data}" Text="{Binding}" Grid.Column="1" Grid.Row="0" />
                                         </Grid>
                                     </ControlTemplate>
                                 </Button.Template>
