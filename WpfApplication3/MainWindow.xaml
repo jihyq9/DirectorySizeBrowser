@@ -2,58 +2,98 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:c="clr-namespace:DirectorySizeBrowser"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         Title="Directory Size Browser" Height="350" Width="525">
     <Window.Resources>
-        <Style x:Key="dirButton">
-            
+        <LinearGradientBrush x:Key="ProgressBarBrush">
+            <LinearGradientBrush.GradientStops>
+                <GradientStop Offset="0" Color="#FF3A4FC0" />
+                <GradientStop Offset=".65" Color="#FF3A4FC0" />
+                <GradientStop Offset="1" Color="#FF17197E" />
+            </LinearGradientBrush.GradientStops>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="ProgressBarHighlightBrush">
+            <LinearGradientBrush.GradientStops>
+                <GradientStop Offset="0" Color="#FF4187BC" />
+                <GradientStop Offset=".65" Color="#FF4187BC" />
+                <GradientStop Offset="1" Color="#FF3A4FC0" />
+            </LinearGradientBrush.GradientStops>
+        </LinearGradientBrush>
+        <Style x:Key="Data" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Padding" Value="5,3,0,0" />
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
         </Style>
+        <Style TargetType="{x:Type ProgressBar}">
+            <Setter Property="Panel.ZIndex" Value="-1" />
+            <Setter Property="BorderBrush" Value="{StaticResource ProgressBarBrush}" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="Height" Value="40" />
+            <Setter Property="Foreground" Value="#0F093806" />
+            <Setter Property="BorderThickness" Value="0,0,4,5" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="{StaticResource ProgressBarHighlightBrush}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
     </Window.Resources>
-    <DockPanel LastChildFill="True" x:Name="mainDock">
-        <Grid DockPanel.Dock="Top">
+    <DockPanel LastChildFill="True" Name="mainDock">
+        <Grid ShowGridLines="True" DockPanel.Dock="Top">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*" />
-                <ColumnDefinition Width="5*" />
-                <ColumnDefinition Width="1*" />
-                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition />
-            </Grid.RowDefinitions>
-            <Button Grid.Column="0" Name="Up" Click="up_Button_Click">
-                <TextBlock TextWrapping="Wrap">
-                    Go up a level
-                </TextBlock>
-            </Button>
-            <ProgressBar Grid.Column="1">
-                
-            </ProgressBar>
-            <Button Grid.Column="2" Name="Restart" Click="restart_Button_Click">
-                <TextBlock TextWrapping="Wrap">
-                    Calculate from another directory
-                </TextBlock>
-            </Button>
-            <Button Grid.Column="3" Name="Load" Click="load_Button_Click">
-                <TextBlock TextWrapping="Wrap">
-                    Load directory sizes
-                </TextBlock>
-            </Button>
+            <TextBlock Grid.Column="0">
+                Rooo
+            </TextBlock>
+            <TextBlock Grid.Column="1">
+                Braha
+            </TextBlock>
+            <TextBlock Grid.Column="2">
+                Foo
+            </TextBlock>
         </Grid>
         <ScrollViewer>
-            <ListBox 
-                Name="listBox"
-                ItemsSource="{Binding Path=SubDirs}" 
-                IsSynchronizedWithCurrentItem="True">
-               <ListBox.ItemTemplate>
+            <ListBox BorderBrush="Black" BorderThickness="0" Name="Outside" ItemsSource="{Binding Path=SubDirs}">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="HorizontalAlignment" Value="Stretch" />
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Button Click="browseDown_Button_Click" Name="browseDown">
-                            <TextBlock>
-                                <TextBlock Text="{Binding Path=Size}" />
-                                <TextBlock Text="{Binding Path=DirPath}" />
-                                <TextBlock Text="{Binding Path=SubDirCount}" />
-                            </TextBlock>
-                        </Button>
+                        <Grid ShowGridLines="False" Height="43">
+                            <Button Click="browseDown_Button_Click">
+                                <Button.Template>
+                                    <ControlTemplate>
+                                        <Grid ShowGridLines="True">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+                                            <UniformGrid Columns="0" Rows="0" Grid.ColumnSpan="3">
+                                                <ProgressBar Value="54"/>
+                                            </UniformGrid>
+                                            <TextBlock Style="{StaticResource Data}" Text="{Binding Path=Size}" Grid.Column="0" Grid.Row="0" />
+                                            <TextBlock Style="{StaticResource Data}" Text="{Binding Path=DirPath}" Grid.Column="1" Grid.Row="0" />
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                        </Grid>
                     </DataTemplate>
-                </ListBox.ItemTemplate> 
+                </ListBox.ItemTemplate>
             </ListBox>
         </ScrollViewer>
     </DockPanel>

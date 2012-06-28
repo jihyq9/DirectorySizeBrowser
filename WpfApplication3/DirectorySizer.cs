@@ -92,7 +92,7 @@ namespace DirectorySizeBrowser
                 childSizeCircuit = parentDir.childSizeCircuit + parentDir.ChildSizeListener;
             }
             if (directoryAddedCircuit != null)
-                directoryAddedCircuit(null, 1);
+               directoryAddedCircuit(null, 1);
 
             #region Create subdirs
             subDirs = new ObservableCollection<DirectorySizer>();
@@ -102,7 +102,6 @@ namespace DirectorySizeBrowser
                 foreach (string subDirPath in subDirPaths)
                 {
                     DirectorySizer newDir = new DirectorySizer(subDirPath, this);
-                    newDir.directoryAddedCircuit = this.DirectoryAddedListener;
 
                     subDirs.Add(newDir);
                     //childSize += newDir.thisSize + newDir.childSize;  //Removed since sizes calculated in another pass
