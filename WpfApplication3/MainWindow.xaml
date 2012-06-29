@@ -19,6 +19,10 @@
                 <GradientStop Offset="1" Color="#FF3A4FC0" />
             </LinearGradientBrush.GradientStops>
         </LinearGradientBrush>
+        <Style x:Key="DataGrid" TargetType="Grid">
+            <Setter Property="ClipToBounds" Value="True" />
+            <Setter Property="Margin" Value="2" />
+        </Style>
         <Style x:Key="Data" TargetType="{x:Type TextBlock}">
             <Setter Property="FontSize" Value="15" />
             <Setter Property="FontWeight" Value="Bold" />
@@ -26,12 +30,13 @@
             <Setter Property="Foreground" Value="Black" />
             <Setter Property="VerticalAlignment" Value="Top" />
             <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="ClipToBounds" Value="True" />
         </Style>
         <Style TargetType="{x:Type ProgressBar}">
             <Setter Property="Panel.ZIndex" Value="-1" />
             <Setter Property="BorderBrush" Value="{StaticResource ProgressBarBrush}" />
             <Setter Property="VerticalAlignment" Value="Top" />
-            <Setter Property="Height" Value="40" />
+            <Setter Property="Height" Value="37" />
             <Setter Property="Foreground" Value="#0F093806" />
             <Setter Property="BorderThickness" Value="0,0,4,5" />
             <Style.Triggers>
@@ -49,46 +54,29 @@
                 <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0">
-                Rooo
-            </TextBlock>
-            <TextBlock Grid.Column="1">
-                Braha
-            </TextBlock>
-            <TextBlock Grid.Column="2">
-                Foo
-            </TextBlock>
+            <Button Click="up_Button_Click" Grid.Column="0">
+                <TextBlock Text="Browse up" />
+            </Button>
+            <Button  Click="load_Button_Click" Grid.Column="1">
+                <TextBlock Text="Load filesizes" />
+            </Button>
+            <Button Click="restart_Button_Click" Grid.Column="2">
+                <TextBlock Text="Start over" />
+            </Button>
         </Grid>
         <ScrollViewer>
-            <ListBox BorderBrush="Black" BorderThickness="0" Name="Outside">
-                <ListBox.ItemsSource>
-                    <x:Array x:Name="Hey" Type="{x:Type sys:String}">
-                        <sys:String>fiveeeeeeeeeeee</sys:String>
-                        <sys:String>Twoooo</sys:String>
-                        <sys:String>3</sys:String>
-                        <sys:String>four</sys:String>
-                        <sys:String>fiftyfe</sys:String>
-                        <sys:String>ronda</sys:String>
-                        <sys:String>fiveeeeeeeeeeee</sys:String>
-                        <sys:String>Twoooo</sys:String>
-                        <sys:String>3</sys:String>
-                        <sys:String>fiveeeeeeeeeeee</sys:String>
-                        <sys:String>Twoooo</sys:String>
-                        <sys:String>3</sys:String>
-                        <sys:String>fiveeeeeeeeeeee</sys:String>
-                        <sys:String>Twoooo</sys:String>
-                        <sys:String>3</sys:String>
-                        <sys:String>four</sys:String>
-                        <sys:String>fiftyfe</sys:String>
-                        <sys:String>ronda</sys:String>
-                        <sys:String>fiveeeeeeeeeeee</sys:String>
-                        <sys:String>Twoooo</sys:String>
-                        <sys:String>3</sys:String>
-                        <sys:String>fiveeeeeeeeeeee</sys:String>
-                        <sys:String>Twoooo</sys:String>
-                        <sys:String>3</sys:String>
-                    </x:Array>
-                </ListBox.ItemsSource>
+            <ScrollViewer.Resources>
+                <c:Bunks x:Key="SomeBunk">
+                    <c:Bunk A="Hey" B="ROO" />
+                    <c:Bunk A="ASDASDASD" B="fsdfsfsdff" />
+                    <c:Bunk A="aaaaaAAAAA" B="hoo" />
+                    <c:Bunk A="hoo" B="AAAAAAAAAAAAASDSDDDDDDDD" />
+                    <c:Bunk A="fun" B="fun" />
+                    <c:Bunk A="REally" B="NOw" />
+                    <c:Bunk A="Help Me Ronda" B="Get Her Outta My Heart" />
+                </c:Bunks>
+            </ScrollViewer.Resources>
+            <ListBox BorderBrush="Black" BorderThickness="0" Name="Outside" ItemsSource="{Binding Path=SubDirs}">
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
                         <Setter Property="HorizontalAlignment" Value="Stretch" />
@@ -97,29 +85,27 @@
                 </ListBox.ItemContainerStyle>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Grid ShowGridLines="False" Height="43">
-                            <Button Click="button_Click">
-                                <Button.Template>
-                                    <ControlTemplate>
-                                        <Grid ShowGridLines="True">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="*"/>
-                                            </Grid.RowDefinitions>
-                                            <UniformGrid Columns="0" Rows="0" Grid.ColumnSpan="3">
-                                                <ProgressBar Value="54"/>
-                                            </UniformGrid>
-                                            <TextBlock Style="{StaticResource Data}" Text="{Binding}" Grid.Column="0" Grid.Row="0" />
-                                            <TextBlock Style="{StaticResource Data}" Text="{Binding}" Grid.Column="1" Grid.Row="0" />
-                                        </Grid>
-                                    </ControlTemplate>
-                                </Button.Template>
-                            </Button>
-                        </Grid>
+                        <Button Click="browseDown_Button_Click">
+                            <Button.Template>
+                                <ControlTemplate>
+                                    <Grid ShowGridLines="True" Style="{StaticResource DataGrid}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="3*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <UniformGrid Columns="0" Rows="0" Grid.ColumnSpan="3">
+                                            <ProgressBar Value="54"/>
+                                        </UniformGrid>
+                                        <TextBlock Style="{StaticResource Data}" Text="{Binding Path=Size}" Grid.Column="0" Grid.Row="0" />
+                                        <TextBlock Style="{StaticResource Data}" Text="{Binding Path=DirPath}" Grid.Column="1" Grid.Row="0" />
+                                    </Grid>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>

@@ -10,6 +10,18 @@ using System.Windows.Forms;
 
 namespace DirectorySizeBrowser
 {
+    public class Bunks : ObservableCollection<Bunk> { }
+
+    public class Bunk
+    {
+        private string a, b;
+
+        public string A { get { return a; } set { a = value; } }
+        public string B { get { return b; } set { b = value; } }
+
+        public Bunk() { }
+    }
+
     public class DirectorySizer : INotifyPropertyChanged
     {
         public delegate void BranchIncrease(DirectoryInfo src, long amount);

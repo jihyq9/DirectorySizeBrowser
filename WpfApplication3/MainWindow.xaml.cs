@@ -23,8 +23,8 @@ namespace DirectorySizeBrowser
         DirectorySizer dirInfo;
         public MainWindow()
         {
-            InitializeComponent();
             Loaded += MainWindow_Loaded;
+            InitializeComponent();
         }
 
         private void MainWindow_Loaded(object obj, RoutedEventArgs args)
