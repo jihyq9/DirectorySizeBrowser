@@ -65,6 +65,15 @@ namespace DirectorySizeBrowser
         {
             DirectorySizer arf = mainDock.DataContext as DirectorySizer;
             arf.FindSize();
+            arf.Sort();
+            arf.NotifyPropertyChanged("SubDirs");
+            foreach (DirectorySizer subDir in arf.SubDirs) //force updates of data
+            {
+                subDir.NotifyPropertyChanged("Size");
+                subDir.NotifyPropertyChanged("SizeRatio");
+            }
+            arf.NotifyPropertyChanged("Size");
+            arf.NotifyPropertyChanged("SizeRatio");
         }
 
         private void button_Click(object sender, RoutedEventArgs e)

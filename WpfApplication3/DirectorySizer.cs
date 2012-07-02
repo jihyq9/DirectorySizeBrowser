@@ -7,24 +7,14 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Collections.ObjectModel;
 using System.Windows.Forms;
+using System.Threading.Tasks;
 
 namespace DirectorySizeBrowser
 {
-    public class Bunks : ObservableCollection<Bunk> { }
-
-    public class Bunk
+    public class DirectorySizer : INotifyPropertyChanged, IComparable<DirectorySizer>
     {
-        private string a, b;
-
-        public string A { get { return a; } set { a = value; } }
-        public string B { get { return b; } set { b = value; } }
-
-        public Bunk() { }
-    }
-
-    public class DirectorySizer : INotifyPropertyChanged
-    {
-        public delegate void BranchIncrease(DirectoryInfo src, long amount);
+        #region Properties
+        public delegate void BranchIncrease(DirectorySizer src, long amount);
         
         public event BranchIncrease directoryAddedCircuit, childSizeCircuit;
         public event PropertyChangedEventHandler PropertyChanged;
@@ -33,11 +23,13 @@ namespace DirectorySizeBrowser
         public long subDirCount;
         public long thisSize;
         public long childSize;
+        public long maxChildSize;
         public DirectoryInfo dirInfo;
         public DirectorySizer parentDir;
         private string dirPath;
+        #endregion
 
-#region Accessors
+        #region Accessors
         public long SubDirCount { get { return subDirCount; } }
         public string DirPath 
         { 
@@ -48,6 +40,40 @@ namespace DirectorySizeBrowser
             } 
         }
         public ObservableCollection<DirectorySizer> SubDirs { get { return subDirs; } }
+        public float SizeRatio
+        {
+            get
+            {
+                long MaxChildSize = parentDir.RealMaxChildSize;
+                if (parentDir == null || MaxChildSize == 0) //prevent errors
+                {
+                    return 0;
+                }
+                else
+                {
+                    float ratio = SizeLong * 100 / MaxChildSize;
+                    return ratio;
+                }
+            }
+        }
+        public long[] ChildSizes
+        {
+            get
+            {
+                long[] childSizes = new long[subDirs.Count];
+                for (int i = 0; i < subDirs.Count; ++i)
+                    childSizes[i] = subDirs[i].SizeLong;
+
+                return childSizes;
+            }
+        }
+        public long RealMaxChildSize
+        {
+            get
+            {
+                return ChildSizes.Max();
+            }
+        }
         public string Size
         {
             get
@@ -86,21 +112,24 @@ namespace DirectorySizeBrowser
                 return outSize + " " + suffix;
             }
         }
+        public long SizeLong { get { return thisSize + childSize; } }
 #endregion
 
         /// <summary>
         /// Creates a new object representing sizes of nested directories
         /// </summary>
         /// <param name="path">string path of this root directory</param>
-        /// <param name="parentDir">null if first (base), the DirectorySizer for the directory containing this one</param>
-        public DirectorySizer(string path, DirectorySizer parentDir)
+        /// <param name="parentDir">null if first (base), else the DirectorySizer for the directory containing this one</param>
+        /// <param name="createSubDirs">whether to create subdirectories recursively or not</param>
+        public DirectorySizer(DirectoryInfo pathDI, DirectorySizer parentDir, bool createSubDirs)
         {
-            dirPath = path;
+            dirPath = pathDI.FullName;
+            dirInfo = pathDI;
 
             if (parentDir != null) //single constructor since a this() constructor is called first
             {
                 this.parentDir = parentDir;
-                directoryAddedCircuit = parentDir.directoryAddedCircuit + parentDir.DirectoryAddedListener;
+                directoryAddedCircuit = parentDir.directoryAddedCircuit + parentDir.DirectoryAddedListener; //Extend chain of notifications--notify all parents
                 childSizeCircuit = parentDir.childSizeCircuit + parentDir.ChildSizeListener;
             }
             if (directoryAddedCircuit != null)
@@ -108,30 +137,33 @@ namespace DirectorySizeBrowser
 
             #region Create subdirs
             subDirs = new ObservableCollection<DirectorySizer>();
-            try
+            if (createSubDirs)
             {
-                string[] subDirPaths = Directory.GetDirectories(path);
-                foreach (string subDirPath in subDirPaths)
+                try
                 {
-                    DirectorySizer newDir = new DirectorySizer(subDirPath, this);
+                    DirectoryInfo[] subDirDIs = pathDI.GetDirectories();
+                    foreach (DirectoryInfo subDirDI in subDirDIs)
+                    {
+                        DirectorySizer newDir = new DirectorySizer(subDirDI, this, true);
 
-                    subDirs.Add(newDir);
-                    //childSize += newDir.thisSize + newDir.childSize;  //Removed since sizes calculated in another pass
+                        subDirs.Add(newDir);
+                        //childSize += newDir.thisSize + newDir.childSize;  //Removed since sizes calculated in another pass
+                    }
                 }
-            }
             #endregion
-            #region catch blocks
-            catch (UnauthorizedAccessException unAuthExc)
-            {
-                Console.WriteLine(unAuthExc.Message);
-            }
-            catch (DirectoryNotFoundException dirNotFoundExcep)
-            {
-                Console.WriteLine(dirNotFoundExcep.Message);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
+                #region catch blocks
+                catch (UnauthorizedAccessException unAuthExc)
+                {
+                    Console.WriteLine(unAuthExc.Message);
+                }
+                catch (DirectoryNotFoundException dirNotFoundExcep)
+                {
+                    Console.WriteLine(dirNotFoundExcep.Message);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
             }
             #endregion
         }
@@ -144,16 +176,26 @@ namespace DirectorySizeBrowser
 
         public void ChildSizeListener(object src, long num)
         {
+            DirectorySizer srcDir = src as DirectorySizer;
             this.childSize += num;
             NotifyPropertyChanged("Size");
+            NotifyPropertyChanged("SizeRatio");
         }
 
-        private void NotifyPropertyChanged(String info)
+        public void NotifyPropertyChanged(String info)
         {
             if (PropertyChanged != null)
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(info));
             }
+        }
+
+        public int CompareTo(DirectorySizer otherDir)//Implements IComparable<T>.  DirectorySizer compares based on Size
+        {
+            if (otherDir == null)
+                return 1;
+
+            return SizeLong.CompareTo(otherDir.SizeLong);
         }
 
         public void FindSize() //separate from constructor in order to do disk i/o while the program is loaded
@@ -166,13 +208,13 @@ namespace DirectorySizeBrowser
             thisSize = 0;
             try
             {
-                FileInfo[] files = new DirectoryInfo(dirPath).GetFiles();
+                FileInfo[] files = dirInfo.GetFiles();
                 foreach (FileInfo file in files)
                 {
                     thisSize += file.Length;
                 }
                 if (childSizeCircuit != null)
-                    childSizeCircuit(this.dirInfo, thisSize);
+                    childSizeCircuit(this, thisSize);
             }
             catch (UnauthorizedAccessException unAuthExc)
             {
@@ -189,24 +231,40 @@ namespace DirectorySizeBrowser
             return;
         }
 
-        //Create an Open Directory dialog and make a DirectorySizer based on the result
+        /// <summary>
+        /// Create an Open Directory dialog and make a DirectorySizer based on the result
+        /// </summary>
+        /// <returns>a DirectorySizer on successful dialog; null otherwise</returns>
         public static DirectorySizer InitializeDirectorySizer()
         {
-            string path = @"C:\";
+            DirectoryInfo dirInfo = new DirectoryInfo(@"C:\");
             FolderBrowserDialog chooseDir = new FolderBrowserDialog();
-            chooseDir.Description = "Choose a folder to calculate foldersizes from...";
-            if (chooseDir.ShowDialog() == DialogResult.OK) //ok i.e. folder selected
+            chooseDir.Description = "Choose a folder to calculate folder sizes from...";
+            if (chooseDir.ShowDialog() == DialogResult.OK) //ok, i.e. folder selected
             {
-                path = chooseDir.SelectedPath;
+                dirInfo = new DirectoryInfo(chooseDir.SelectedPath);
             }
             else //return null if no folder selected
             {
                 return null;
             }
-            //DirectoryInfo findDir = new DirectoryInfo(path);
-            DirectorySizer newSizer = new DirectorySizer(path, null);
+            DirectorySizer newSizer = new DirectorySizer(dirInfo, null, true);
 
             return newSizer; //successful selection
+        }
+
+        public void Sort()
+        {
+            if (subDirs.Count == 0 || subDirs == null) //no work if no items!
+            {
+                return;
+            }
+            List<DirectorySizer> listSubDirs = subDirs.ToList();
+            listSubDirs.Sort();
+            listSubDirs.Reverse();
+            subDirs = new ObservableCollection<DirectorySizer>(listSubDirs);
+            foreach (DirectorySizer subDir in subDirs) //recursively sort
+                subDir.Sort();
         }
 
         #region Obsolete constructor
@@ -258,4 +316,18 @@ namespace DirectorySizeBrowser
         */
         #endregion
     }
+
+#region Test resources
+    public class Bunks : ObservableCollection<Bunk> { }
+
+    public class Bunk
+    {
+        private string a, b;
+
+        public string A { get { return a; } set { a = value; } }
+        public string B { get { return b; } set { b = value; } }
+
+        public Bunk() { }
+    }
+#endregion
 }

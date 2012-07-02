@@ -13,7 +13,7 @@ namespace DirectorySizeBrowser
     /// Interaction logic for App.xaml
     /// </summary>
     public partial class App : Application
-    {
+    {   
         void AppStartup(object sender, StartupEventArgs e)
         {
             DirectorySizeBrowser.MainWindow main = new DirectorySizeBrowser.MainWindow();

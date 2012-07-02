@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:c="clr-namespace:DirectorySizeBrowser"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        Icon="/WpfApplication3;component/icons/Bricks.png"
         Title="Directory Size Browser" Height="350" Width="525">
     <Window.Resources>
         <LinearGradientBrush x:Key="ProgressBarBrush">
@@ -21,12 +22,12 @@
         </LinearGradientBrush>
         <Style x:Key="DataGrid" TargetType="Grid">
             <Setter Property="ClipToBounds" Value="True" />
-            <Setter Property="Margin" Value="2" />
+            <Setter Property="Margin" Value="0" />
         </Style>
         <Style x:Key="Data" TargetType="{x:Type TextBlock}">
             <Setter Property="FontSize" Value="15" />
             <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="Padding" Value="5,3,0,0" />
+            <Setter Property="Padding" Value="4" />
             <Setter Property="Foreground" Value="Black" />
             <Setter Property="VerticalAlignment" Value="Top" />
             <Setter Property="HorizontalAlignment" Value="Left" />
@@ -45,26 +46,123 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-
+        <Style x:Key="DataTopBorder" TargetType="Border">
+            <Setter Property="BorderBrush" Value="Black" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+        <Style TargetType="ListBox">
+            <Setter Property="BorderBrush" Value="Black" />
+            <Setter Property="BorderThickness" Value="0,1,0,0" />
+        </Style>
+        <Style x:Key="DataTop" TargetType="TextBlock">
+            <Setter Property="Padding" Value="5" />
+            <Setter Property="FontSize" Value="13" />
+        </Style>
+        <Style x:Key="DataTopTitle" BasedOn="{StaticResource DataTop}" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+        <Style x:Key="MainTitle" TargetType="TextBlock">
+            <Setter Property="FontStyle" Value="Italic" />
+            <Setter Property="Padding" Value="3,3,1,1" />
+        </Style>
+        <Style x:Key="DataTopGrid" TargetType="Grid">
+            <Setter Property="Margin" Value="2,0,2,0" />
+        </Style>
+        <Style x:Key="TopBG" TargetType="Border">
+            <Setter Property="Background" Value="LightSkyBlue" />
+            <Setter Property="Panel.ZIndex" Value="-2" />
+        </Style>
     </Window.Resources>
-    <DockPanel LastChildFill="True" Name="mainDock">
-        <Grid ShowGridLines="True" DockPanel.Dock="Top">
+    <DockPanel LastChildFill="True" Name="mainDock" Grid.IsSharedSizeScope="True">
+        <Grid ShowGridLines="False" Name="Buttons" DockPanel.Dock="Top" Background="Black">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="2*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Button Click="up_Button_Click" Grid.Column="0">
-                <TextBlock Text="Browse up" />
-            </Button>
-            <Button  Click="load_Button_Click" Grid.Column="1">
+            <Button  Click="load_Button_Click" Grid.Column="0">
                 <TextBlock Text="Load filesizes" />
             </Button>
+            <Button Click="up_Button_Click" Grid.Column="1">
+                <Image Source="/WpfApplication3;component/icons/Up%20Folder.png" Name="Up" ToolTip="Navigate up a folder" Stretch="None" />
+            </Button>
             <Button Click="restart_Button_Click" Grid.Column="2">
-                <TextBlock Text="Start over" />
+                <Image Source="/WpfApplication3;component/icons/Hierarchy.png" Name="Reset" ToolTip="Restart DirectorySizer from a new directory" Stretch="None" />
             </Button>
         </Grid>
+        <Border DockPanel.Dock="Top" Style="{StaticResource TopBG}">
+            <Grid Name="DataTop" ShowGridLines="False" Style="{StaticResource DataTopGrid}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="Size"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="SubDirs"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+            <TextBlock Grid.Column="0" Grid.Row="0" Style="{StaticResource DataTopTitle}">
+                    Size in path
+                </TextBlock>
+            <TextBlock Grid.Column="1" Grid.Row="0" Style="{StaticResource DataTopTitle}">
+                    Directory name
+                </TextBlock>
+            <TextBlock Grid.Column="2" Grid.Row="0" Style="{StaticResource DataTopTitle}">
+                    # Subdirs
+                </TextBlock>
+            <FrameworkElement Grid.Column="3" Grid.RowSpan="4"
+                Width="{DynamicResource
+                {x:Static SystemParameters.VerticalScrollBarWidthKey}}" />
+
+            <TextBlock Grid.Column="1" Grid.Row="1" Style="{StaticResource MainTitle}" Text="Main directory information" />
+
+            <TextBlock Text="{Binding Path=Size}" Grid.Column="0" Grid.Row="2" Style="{StaticResource DataTop}"/>
+            <TextBlock Text="{Binding Path=DirPath}" Grid.Column="1" Grid.Row="2" Style="{StaticResource DataTop}"/>
+            <TextBlock Text="{Binding Path=SubDirCount}" Grid.Column="2" Grid.Row="2" Style="{StaticResource DataTop}"/>
+            
+            <TextBlock Grid.Column="1" Grid.Row="3" Style="{StaticResource MainTitle}" Text="Sub directory information" />
+        </Grid>
+        </Border>
+
         <ScrollViewer>
+            <ListBox  Name="SubDirsInfo" ItemsSource="{Binding Path=SubDirs}">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="HorizontalAlignment" Value="Stretch" />
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Padding" Value="0,0,0,2" />
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Button Click="browseDown_Button_Click" Name="SubDirInfoTile">
+                            <Button.Template>
+                                <ControlTemplate>
+                                    <Grid ShowGridLines="False" Style="{StaticResource DataGrid}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" SharedSizeGroup="Size"/>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" SharedSizeGroup="SubDirs"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <UniformGrid Columns="0" Rows="0" Grid.ColumnSpan="3">
+                                            <ProgressBar Value="{Binding Path=SizeRatio, Mode=OneWay}"/>
+                                        </UniformGrid>
+                                        <TextBlock Style="{StaticResource Data}" Text="{Binding Path=Size}" Grid.Column="0" Grid.Row="0" />
+                                        <TextBlock Style="{StaticResource Data}" Text="{Binding Path=DirPath}" Grid.Column="1" Grid.Row="0" />
+                                        <TextBlock Style="{StaticResource Data}" Text="{Binding Path=SubDirCount}" Grid.Column="3" Grid.Row="0" />
+                                    </Grid>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
             <ScrollViewer.Resources>
                 <c:Bunks x:Key="SomeBunk">
                     <c:Bunk A="Hey" B="ROO" />
@@ -76,39 +174,6 @@
                     <c:Bunk A="Help Me Ronda" B="Get Her Outta My Heart" />
                 </c:Bunks>
             </ScrollViewer.Resources>
-            <ListBox BorderBrush="Black" BorderThickness="0" Name="Outside" ItemsSource="{Binding Path=SubDirs}">
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="HorizontalAlignment" Value="Stretch" />
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                    </Style>
-                </ListBox.ItemContainerStyle>
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Button Click="browseDown_Button_Click">
-                            <Button.Template>
-                                <ControlTemplate>
-                                    <Grid ShowGridLines="True" Style="{StaticResource DataGrid}">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="3*"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="*"/>
-                                        </Grid.RowDefinitions>
-                                        <UniformGrid Columns="0" Rows="0" Grid.ColumnSpan="3">
-                                            <ProgressBar Value="54"/>
-                                        </UniformGrid>
-                                        <TextBlock Style="{StaticResource Data}" Text="{Binding Path=Size}" Grid.Column="0" Grid.Row="0" />
-                                        <TextBlock Style="{StaticResource Data}" Text="{Binding Path=DirPath}" Grid.Column="1" Grid.Row="0" />
-                                    </Grid>
-                                </ControlTemplate>
-                            </Button.Template>
-                        </Button>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
         </ScrollViewer>
     </DockPanel>
 </Window>
