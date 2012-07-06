@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Timers;
+using System.Threading;
 
 namespace DirectorySizeBrowser
 {
@@ -24,15 +25,21 @@ namespace DirectorySizeBrowser
         public MainWindow()
         {
             Loaded += MainWindow_Loaded;
+            
             InitializeComponent();
         }
 
-        private void MainWindow_Loaded(object obj, RoutedEventArgs args)
+        private void MainWindow_Loaded(object obj, EventArgs args)
         {
-            dirInfo = DirectorySizer.InitializeDirectorySizer();
+            dirInfo = DirectorySizer.InitializeDirectorySizer(true);
             if (dirInfo != null)
             {
                 mainDock.DataContext = dirInfo;
+                dirInfo.CreateChildren(true, 0, null);
+                dirInfo.NotifyPropertyChanged("SubDirs");
+                //Thread.Sleep(1);
+                //dirInfo.CreateChildren(true, 0, null);
+                dirInfo.Sort();
                 //dirInfo.FindSize();
             }
         }
@@ -64,7 +71,7 @@ namespace DirectorySizeBrowser
         private void load_Button_Click(object sender, RoutedEventArgs e)
         {
             DirectorySizer arf = mainDock.DataContext as DirectorySizer;
-            arf.FindSize();
+            arf.FindSize(true);
             arf.Sort();
             arf.NotifyPropertyChanged("SubDirs");
             foreach (DirectorySizer subDir in arf.SubDirs) //force updates of data

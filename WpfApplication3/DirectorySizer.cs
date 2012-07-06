@@ -20,6 +20,7 @@ namespace DirectorySizeBrowser
         public event PropertyChangedEventHandler PropertyChanged;
 
         public ObservableCollection<DirectorySizer> subDirs;
+        public bool initializedSubDirs, counted;
         public long subDirCount;
         public long thisSize;
         public long childSize;
@@ -118,11 +119,15 @@ namespace DirectorySizeBrowser
         /// <summary>
         /// Creates a new object representing sizes of nested directories
         /// </summary>
-        /// <param name="path">string path of this root directory</param>
+        /// <param name="pathDI">DirectoryInfo for this root directory</param>
         /// <param name="parentDir">null if first (base), else the DirectorySizer for the directory containing this one</param>
         /// <param name="createSubDirs">whether to create subdirectories recursively or not</param>
-        public DirectorySizer(DirectoryInfo pathDI, DirectorySizer parentDir, bool createSubDirs)
+        /// <param name="getFileSize">whether to calculate filesize as the directory tree is being created (recommended)</param>
+        public DirectorySizer(DirectoryInfo pathDI, DirectorySizer parentDir, 
+            bool createSubDirs, bool getFileSize)
         {
+            initializedSubDirs = false;
+            counted = false;
             dirPath = pathDI.FullName;
             dirInfo = pathDI;
 
@@ -135,18 +140,22 @@ namespace DirectorySizeBrowser
             if (directoryAddedCircuit != null)
                directoryAddedCircuit(null, 1);
 
+            if (getFileSize)
+                this.FindSize(false);
+
             #region Create subdirs
             subDirs = new ObservableCollection<DirectorySizer>();
             if (createSubDirs)
             {
+                initializedSubDirs = true;
                 try
                 {
-                    DirectoryInfo[] subDirDIs = pathDI.GetDirectories();
-                    foreach (DirectoryInfo subDirDI in subDirDIs)
+                    foreach (DirectoryInfo subDirDI in pathDI.GetDirectories())
                     {
-                        DirectorySizer newDir = new DirectorySizer(subDirDI, this, true);
+                        DirectorySizer newDir = new DirectorySizer(subDirDI, this, true, getFileSize);
 
                         subDirs.Add(newDir);
+                        NotifyPropertyChanged("SubDirs");
                         //childSize += newDir.thisSize + newDir.childSize;  //Removed since sizes calculated in another pass
                     }
                 }
@@ -198,14 +207,22 @@ namespace DirectorySizeBrowser
             return SizeLong.CompareTo(otherDir.SizeLong);
         }
 
-        public void FindSize() //separate from constructor in order to do disk i/o while the program is loaded
+        /// <summary>
+        /// Calculates the sizes down this DirectorySizer tree
+        /// </summary>
+        /// <param name="recur">Whether to recursively calculate down nodes</param>
+        public void FindSize(bool recur) //separate from constructor in order to do disk i/o while the program is loaded
         {
-            foreach (DirectorySizer subDir in subDirs)
+            if (recur)
             {
-                subDir.FindSize();
+                foreach (DirectorySizer subDir in subDirs)
+                {
+                    subDir.FindSize(true);
+                }
             }
             
             thisSize = 0;
+            counted = true;
             try
             {
                 FileInfo[] files = dirInfo.GetFiles();
@@ -228,14 +245,32 @@ namespace DirectorySizeBrowser
             {
                 Console.WriteLine(dnfe.Message);
             }
+            NotifyPropertyChanged("Size");
+            NotifyPropertyChanged("SizeRatio");
             return;
         }
+
+        
+        /// <summary>
+        /// Create an Open Directory dialog and make a DirectorySizer based on the result.  One-step with no filesizes calculated.
+        /// </summary>
+        /// <returns>a DirectorySizer on successful dialog; null otherwise</returns>
+        public static DirectorySizer InitializeDirectorySizer() { return InitializeDirectorySizer(false, false); }
+
+        /// <summary>
+        /// Create an Open Directory dialog and make a DirectorySizer based on the result.  Filesizes calculated.
+        /// </summary>
+        /// <param name="singletiere">Whether to do single-tier or recursive</param>
+        /// <returns>a DirectorySizer on successful dialog; null otherwise</returns>
+        public static DirectorySizer InitializeDirectorySizer(bool singletier) { return InitializeDirectorySizer(singletier, false); }
 
         /// <summary>
         /// Create an Open Directory dialog and make a DirectorySizer based on the result
         /// </summary>
         /// <returns>a DirectorySizer on successful dialog; null otherwise</returns>
-        public static DirectorySizer InitializeDirectorySizer()
+        /// <param name="singletier">Single-tier or recursive.  If single-tiered, call CreateChildren() after</param>
+        /// <param name="calcFileSize">Whether to calculate sizes while creating</param>
+        public static DirectorySizer InitializeDirectorySizer(bool singletier, bool calcFileSize)
         {
             DirectoryInfo dirInfo = new DirectoryInfo(@"C:\");
             FolderBrowserDialog chooseDir = new FolderBrowserDialog();
@@ -248,9 +283,65 @@ namespace DirectorySizeBrowser
             {
                 return null;
             }
-            DirectorySizer newSizer = new DirectorySizer(dirInfo, null, true);
+            DirectorySizer newSizer = new DirectorySizer(dirInfo, null, !singletier, calcFileSize);
 
             return newSizer; //successful selection
+        }
+
+        /// <summary>
+        /// Creates children.  Performed after a single-tier initialize
+        /// </summary>
+        /// <param name="calcFileSize">Whether to calculate sizes while creating children</param>
+        /// <param name="multiThreadTiers">How many tiers past this one to multithread, null if "until done"</param>
+        /// <param name="tiers">How many tiers to make children, null if "until done"</param>
+        public void CreateChildren(bool calcFileSize, int? multiThreadTiers, int? tiers)
+        {
+            if (tiers > 0 || tiers == null) //if function is told to make more
+            {
+                if (initializedSubDirs != true)//if hasn't been done before do it
+                {
+                    if (tiers != null) //if function isn't infinite, decrement
+                        --tiers;
+                    if (multiThreadTiers > 0 || multiThreadTiers == null)
+                    {
+                        if (multiThreadTiers != null)
+                            --multiThreadTiers;
+                        Parallel.ForEach(dirInfo.GetDirectories(),
+                            subDirInfo => CreateChild(subDirInfo, calcFileSize, multiThreadTiers, tiers));
+                    }
+                    else
+                    {
+                        foreach (DirectoryInfo subDirInfo in dirInfo.GetDirectories())
+                        {
+                            CreateChild(subDirInfo, calcFileSize, multiThreadTiers, tiers);
+                        }
+                    }
+                    initializedSubDirs = true; //mark after all dirs done
+                }
+                else
+                {
+                    foreach (DirectorySizer subDir in subDirs) //if already initialized, initialize subdirs
+                    {
+                        subDir.CreateChildren(calcFileSize, multiThreadTiers, tiers);
+                    }
+                }
+            }
+            else
+                return; //made obvious--if function called but not told to process further tiers, end
+        }
+
+        /// <summary>
+        /// Main substance of CreateChildren(), only to be called from CreateChildren()
+        /// </summary>
+        private void CreateChild(DirectoryInfo subDirInfo, bool calcFileSize, int? multithreadtiers, int? tiers)
+        {
+            System.Console.WriteLine("{0}\\{1}", this.DirPath, subDirInfo.Name);
+            DirectorySizer subDir = new DirectorySizer(subDirInfo, this, false, calcFileSize);
+            subDirs.Add(subDir);
+            NotifyPropertyChanged("SubDirs");
+            subDir.CreateChildren(calcFileSize, multithreadtiers, tiers); //only one tier of multi-thread
+            subDir.NotifyPropertyChanged("Size");
+            subDir.NotifyPropertyChanged("SizeRatio");
         }
 
         public void Sort()
