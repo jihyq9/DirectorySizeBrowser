@@ -5,6 +5,35 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         Icon="/WpfApplication3;component/icons/Bricks.png"
         Title="Directory Size Browser" Height="350" Width="525">
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static c:MainWindow.RestartCommand}"
+                        Executed="Restart_Executed"
+                        CanExecute="Restart_CanExecute" />
+        <CommandBinding Command="ApplicationCommands.Close"
+                        Executed="Close_Executed"
+                        CanExecute="Close_CanExecute" />
+        <CommandBinding Command="{x:Static c:MainWindow.BrowseUpCommand}"
+                        Executed="BrowseUp_Executed"
+                        CanExecute="BrowseUp_CanExecute" />
+        <CommandBinding Command="{x:Static c:MainWindow.AboutCommand}"
+                        Executed="About_Executed"
+                        CanExecute="About_CanExecute" />
+        <CommandBinding Command="{x:Static c:MainWindow.HideToolbarCommand}"
+                        Executed="HideToolbar_Executed"
+                        CanExecute="HideToolbar_CanExecute" />
+    </Window.CommandBindings>
+    <Window.InputBindings>
+        <KeyBinding Command="{x:Static c:MainWindow.RestartCommand}" x:Name="RestartKey"
+                    Gesture="Ctrl+R" />
+        <KeyBinding Command="ApplicationCommands.Close"
+                    Gesture="CTRL+Q" />
+        <KeyBinding Command="{x:Static c:MainWindow.BrowseUpCommand}"
+                    Gesture="CTRL+U" />
+        <KeyBinding Command="{x:Static c:MainWindow.HideToolbarCommand}"
+                    Gesture="CTRL+H" />
+        <KeyBinding Command="{x:Static c:MainWindow.AboutCommand}"
+                    Gesture="CTRL+A" />
+    </Window.InputBindings>
     <Window.Resources>
         <LinearGradientBrush x:Key="ProgressBarBrush">
             <LinearGradientBrush.GradientStops>
@@ -74,22 +103,48 @@
         </Style>
     </Window.Resources>
     <DockPanel LastChildFill="True" Name="mainDock" Grid.IsSharedSizeScope="True">
-        <Grid ShowGridLines="False" Name="Buttons" DockPanel.Dock="Top" Background="Black">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Button  Click="load_Button_Click" Grid.Column="0">
-                <TextBlock Text="Load filesizes" />
-            </Button>
-            <Button Click="up_Button_Click" Grid.Column="1">
-                <Image Source="/WpfApplication3;component/icons/Up%20Folder.png" Name="Up" ToolTip="Navigate up a folder" Stretch="None" />
-            </Button>
-            <Button Click="restart_Button_Click" Grid.Column="2">
-                <Image Source="/WpfApplication3;component/icons/Hierarchy.png" Name="Reset" ToolTip="Restart DirectorySizer from a new directory" Stretch="None" />
-            </Button>
-        </Grid>
+        <Border DockPanel.Dock="Top" Style="{StaticResource TopBG}">
+            <Grid ShowGridLines="False">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Menu Name="mainMenu" Grid.Row="0">
+                    <MenuItem Header="_Program">
+                        <MenuItem Header="_Start Over" InputGestureText="Ctrl+R"
+                                  Command="{x:Static c:MainWindow.RestartCommand}"/>
+                        <MenuItem Header="_Up a Directory" InputGestureText="Ctrl+U"
+                                  Command="{x:Static c:MainWindow.BrowseUpCommand}"/>
+                        <Separator />
+                        <MenuItem Header="_About" InputGestureText="Ctrl+A"
+                                  Command="{x:Static c:MainWindow.AboutCommand}"/>
+                        <Separator />
+                        <MenuItem Header="_Quit" InputGestureText="Ctrl+Q"
+                                  Command="ApplicationCommands.Close"/>
+                    </MenuItem>
+                    <MenuItem Header="_View" >
+                        <MenuItem Name="HideToolbar" 
+                                  Header="_Hide Toolbar" InputGestureText="Ctrl+H"
+                                  IsCheckable="True" IsChecked="False" Checked="HideToolbar_Checked" Unchecked="HideToolbar_Unchecked"/>
+                    </MenuItem>
+                </Menu>
+                <Grid Name="Buttons" Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Name="UpButton" Command="{x:Static c:MainWindow.BrowseUpCommand}" Grid.Column="0">
+                        <Image ToolTip="Navigate up a folder (Ctrl+U)" Stretch="None" 
+                               Source="/WpfApplication3;component/icons/Up%20Folder.png"/>
+                    </Button>
+                    <Button Name="ResetButton" Command="{x:Static c:MainWindow.RestartCommand}" Grid.Column="1">
+                        <Image ToolTip="Restart DirectorySizer from a new directory (Ctrl+R)" Stretch="None" 
+                               Source="/WpfApplication3;component/icons/Hierarchy.png"/>
+                    </Button>
+                </Grid>
+            </Grid>
+        </Border>
         <Border DockPanel.Dock="Top" Style="{StaticResource TopBG}">
             <Grid Name="DataTop" ShowGridLines="False" Style="{StaticResource DataTopGrid}">
                 <Grid.ColumnDefinitions>
@@ -138,7 +193,7 @@
                 </ListBox.ItemContainerStyle>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Button Click="browseDown_Button_Click" Name="SubDirInfoTile">
+                        <Button Click="BrowseDown_Click" Name="SubDirInfoTile">
                             <Button.Template>
                                 <ControlTemplate>
                                     <Grid ShowGridLines="False" Style="{StaticResource DataGrid}">

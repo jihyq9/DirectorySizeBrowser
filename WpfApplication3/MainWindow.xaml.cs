@@ -22,8 +22,16 @@ namespace DirectorySizeBrowser
     public partial class MainWindow : Window
     {
         DirectorySizer dirInfo;
+        public static RoutedCommand BrowseUpCommand, BrowseDownCommand, RestartCommand, HideToolbarCommand, AboutCommand;
+
         public MainWindow()
         {
+            BrowseUpCommand = new RoutedCommand();
+            BrowseDownCommand = new RoutedCommand();
+            RestartCommand = new RoutedCommand();
+            HideToolbarCommand = new RoutedCommand();
+            AboutCommand = new RoutedCommand();
+
             Loaded += MainWindow_Loaded;
             
             InitializeComponent();
@@ -31,41 +39,105 @@ namespace DirectorySizeBrowser
 
         private void MainWindow_Loaded(object obj, EventArgs args)
         {
-            dirInfo = DirectorySizer.InitializeDirectorySizer(true);
-            if (dirInfo != null)
+            //StartBrowse(); //whether directorysizer created at startup or on user input
+        }
+
+        private void Restart_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            StartBrowse();
+        }
+
+        private void Restart_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void Close_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
+
+        private void Close_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void About_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            bool abtWindowOpened = false;
+            foreach (Window subWindow in OwnedWindows)
             {
-                mainDock.DataContext = dirInfo;
-                dirInfo.CreateChildren(true, 0, null);
-                dirInfo.NotifyPropertyChanged("SubDirs");
-                //Thread.Sleep(1);
-                //dirInfo.CreateChildren(true, 0, null);
-                dirInfo.Sort();
-                //dirInfo.FindSize();
+                if (subWindow.GetType() == typeof(AboutWindow))
+                {
+                    abtWindowOpened = true;
+                    subWindow.Activate();
+                    break;
+                }
+            }
+            if (!abtWindowOpened)
+            {
+                AboutWindow abtWindow = new AboutWindow();
+                abtWindow.Owner = this;
+                abtWindow.Show();
             }
         }
 
-        private void restart_Button_Click(object sender, RoutedEventArgs e)
+        private void About_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            dirInfo = DirectorySizer.InitializeDirectorySizer();
-            if (dirInfo != null)
+            e.CanExecute = true;
+        }
+
+        private void HideToolbar_Checked(object sender, RoutedEventArgs e)
+        {
+            Buttons.Visibility = Visibility.Collapsed;
+        }
+
+        private void HideToolbar_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Buttons.Visibility = Visibility.Visible;
+        }
+
+        private void HideToolbar_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (!HideToolbar.IsChecked) //hidden is selected, toggling to visible
             {
-                mainDock.DataContext = dirInfo;
-                //dirInfo.FindSize();
+                HideToolbar.IsChecked = true;
+            }
+            else //visible is selected, toggling to hidden
+            {
+                HideToolbar.IsChecked = false;
             }
         }
 
-        private void browseDown_Button_Click(object sender, RoutedEventArgs e)
+        private void HideToolbar_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            Button from = sender as Button;
-            DirectorySizer down = from.DataContext as DirectorySizer;
-            mainDock.DataContext = down;
+            e.CanExecute = true;
         }
 
-        private void up_Button_Click(object sender, RoutedEventArgs e)
+        private void BrowseUp_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             DirectorySizer currentDir = mainDock.DataContext as DirectorySizer;
-            if (currentDir.parentDir != null)
-                mainDock.DataContext = currentDir.parentDir;
+            mainDock.DataContext = currentDir.parentDir;
+        }
+
+        private void BrowseUp_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            DirectorySizer currentDir = mainDock.DataContext as DirectorySizer;
+            if (currentDir != null && currentDir.parentDir != null)
+                e.CanExecute = true;
+            else
+                e.CanExecute = false;
+        }
+
+        private void BrowseDown_Click(object sender, RoutedEventArgs e)
+        {
+            Button from = sender as Button;
+            if (from != null)
+            {
+                DirectorySizer down = from.DataContext as DirectorySizer;
+                if (down != null)
+                    mainDock.DataContext = down;
+            }
         }
 
         private void load_Button_Click(object sender, RoutedEventArgs e)
@@ -83,9 +155,17 @@ namespace DirectorySizeBrowser
             arf.NotifyPropertyChanged("SizeRatio");
         }
 
-        private void button_Click(object sender, RoutedEventArgs e)
+        private void StartBrowse()
         {
-
+            dirInfo = DirectorySizer.InitializeDirectorySizer(true);
+            if (dirInfo != null)
+            {
+                mainDock.DataContext = dirInfo;
+                dirInfo.CreateChildren(true, 0, null);
+                dirInfo.Sort();
+                dirInfo.NotifyPropertyChanged("SubDirs");
+                //dirInfo.FindSize();
+            }
         }
     }
 }

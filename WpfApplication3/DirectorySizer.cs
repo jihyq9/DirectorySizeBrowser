@@ -160,7 +160,7 @@ namespace DirectorySizeBrowser
                     }
                 }
             #endregion
-                #region catch blocks
+            #region catch blocks
                 catch (UnauthorizedAccessException unAuthExc)
                 {
                     Console.WriteLine(unAuthExc.Message);
@@ -300,18 +300,38 @@ namespace DirectorySizeBrowser
             {
                 if (initializedSubDirs != true)//if hasn't been done before do it
                 {
+                    DirectoryInfo[] subDirInfos = new DirectoryInfo[0];
+                    try
+                    {
+                        subDirInfos = dirInfo.GetDirectories();
+                    }
+                    #region catch blocks
+                    catch (UnauthorizedAccessException unAuthExc)
+                    {
+                        Console.WriteLine(unAuthExc.Message);
+                    }
+                    catch (DirectoryNotFoundException dirNotFoundExcep)
+                    {
+                        Console.WriteLine(dirNotFoundExcep.Message);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+                    #endregion
+                    
                     if (tiers != null) //if function isn't infinite, decrement
                         --tiers;
                     if (multiThreadTiers > 0 || multiThreadTiers == null)
                     {
                         if (multiThreadTiers != null)
                             --multiThreadTiers;
-                        Parallel.ForEach(dirInfo.GetDirectories(),
+                        Parallel.ForEach(subDirInfos,
                             subDirInfo => CreateChild(subDirInfo, calcFileSize, multiThreadTiers, tiers));
                     }
                     else
                     {
-                        foreach (DirectoryInfo subDirInfo in dirInfo.GetDirectories())
+                        foreach (DirectoryInfo subDirInfo in subDirInfos)
                         {
                             CreateChild(subDirInfo, calcFileSize, multiThreadTiers, tiers);
                         }
