@@ -7,11 +7,11 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("WpfApplication3")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("DirectorySizeBrowser")]
+[assembly: AssemblyDescription("A program to calculate directory sizes")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("WpfApplication3")]
+[assembly: AssemblyCompany("Open Mix")]
+[assembly: AssemblyProduct("Directory Size Browser")]
 [assembly: AssemblyCopyright("Copyright ©  2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

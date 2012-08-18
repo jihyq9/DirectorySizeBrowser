@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:c="clr-namespace:DirectorySizeBrowser"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
-        Icon="/WpfApplication3;component/icons/Bricks.png"
+        Icon="/DirectorySizeBrowser;component/icons/Bricks.png"
         Title="Directory Size Browser" Height="350" Width="525">
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static c:MainWindow.RestartCommand}"
@@ -136,11 +136,11 @@
                     </Grid.ColumnDefinitions>
                     <Button Name="UpButton" Command="{x:Static c:MainWindow.BrowseUpCommand}" Grid.Column="0">
                         <Image ToolTip="Navigate up a folder (Ctrl+U)" Stretch="None" 
-                               Source="/WpfApplication3;component/icons/Up%20Folder.png"/>
+                               Source="/DirectorySizeBrowser;component/icons/Up%20Folder.png"/>
                     </Button>
                     <Button Name="ResetButton" Command="{x:Static c:MainWindow.RestartCommand}" Grid.Column="1">
                         <Image ToolTip="Restart DirectorySizer from a new directory (Ctrl+R)" Stretch="None" 
-                               Source="/WpfApplication3;component/icons/Hierarchy.png"/>
+                               Source="/DirectorySizeBrowser;component/icons/Hierarchy.png"/>
                     </Button>
                 </Grid>
             </Grid>
