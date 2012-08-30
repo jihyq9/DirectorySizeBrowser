@@ -111,7 +111,7 @@
                 </Grid.RowDefinitions>
                 <Menu Name="mainMenu" Grid.Row="0">
                     <MenuItem Header="_Program">
-                        <MenuItem Header="_Start Over" InputGestureText="Ctrl+R"
+                        <MenuItem Header="_Start From a New Directory" InputGestureText="Ctrl+R"
                                   Command="{x:Static c:MainWindow.RestartCommand}"/>
                         <MenuItem Header="_Up a Directory" InputGestureText="Ctrl+U"
                                   Command="{x:Static c:MainWindow.BrowseUpCommand}"/>
@@ -139,7 +139,7 @@
                                Source="/DirectorySizeBrowser;component/icons/Up%20Folder.png"/>
                     </Button>
                     <Button Name="ResetButton" Command="{x:Static c:MainWindow.RestartCommand}" Grid.Column="1">
-                        <Image ToolTip="Restart DirectorySizer from a new directory (Ctrl+R)" Stretch="None" 
+                        <Image ToolTip="Start DirectorySizer from a new directory (Ctrl+R)" Stretch="None" 
                                Source="/DirectorySizeBrowser;component/icons/Hierarchy.png"/>
                     </Button>
                 </Grid>
