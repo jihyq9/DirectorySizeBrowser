@@ -117,13 +117,13 @@ namespace DirectorySizeBrowser
         private void BrowseUp_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             DirectorySizer currentDir = mainDock.DataContext as DirectorySizer;
-            mainDock.DataContext = currentDir.parentDir;
+            mainDock.DataContext = currentDir.ParentDir;
         }
 
         private void BrowseUp_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             DirectorySizer currentDir = mainDock.DataContext as DirectorySizer;
-            if (currentDir != null && currentDir.parentDir != null)
+            if (currentDir != null && currentDir.ParentDir != null)
                 e.CanExecute = true;
             else
                 e.CanExecute = false;

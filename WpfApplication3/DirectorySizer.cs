@@ -19,18 +19,18 @@ namespace DirectorySizeBrowser
         public event BranchIncrease directoryAddedCircuit, childSizeCircuit;
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public ObservableCollection<DirectorySizer> subDirs;
-        public bool initializedSubDirs, counted;
-        public long subDirCount;
-        public long thisSize;
-        public long childSize;
-        public long maxChildSize;
-        public DirectoryInfo dirInfo;
-        public DirectorySizer parentDir;
+        private ObservableCollection<DirectorySizer> subDirs;
+        private bool initializedSubDirs, counted;
+        private long subDirCount;
+        private long thisSize;
+        private long childSize;
+        private readonly DirectoryInfo dirInfo;
+        private readonly DirectorySizer parentDir;
         private string dirPath;
         #endregion
 
         #region Accessors
+        public DirectorySizer ParentDir { get { return parentDir; } }
         public long SubDirCount { get { return subDirCount; } }
         public string DirPath 
         { 
