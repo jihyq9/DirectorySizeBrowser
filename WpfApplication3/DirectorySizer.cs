@@ -12,8 +12,7 @@ using System.Threading.Tasks;
 namespace DirectorySizeBrowser
 {
     /// <summary>
-    /// A linked class that represents directory info such as size and sub directories.
-    /// NOTE:  Use 
+    /// A linked class that represents directory info such as size and sub directories, and calculates this
     /// </summary>
     public class DirectorySizer : INotifyPropertyChanged, IComparable<DirectorySizer>
     {
@@ -119,15 +118,18 @@ namespace DirectorySizeBrowser
         }
         public long SizeLong { get { return thisSize + childSize; } }
 #endregion
-
+        
         #region Constructors
         /// <summary>
         /// Creates a new object representing sizes of nested directories
         /// </summary>
-        /// <param name="pathDI">DirectoryInfo for this root directory</param>
+        /// <param name="pathDI">DirectoryInfo for this root directory.  
+        /// Can call ChooseDirectoryDialog() to get a DirectoryInfo</param>
         /// <param name="parentDir">null if first (base), else the DirectorySizer for the directory containing this one</param>
-        /// <param name="createSubDirs">Whether to create subdirectories recursively or not.  DEFAULT: true.  If false, follow with CreateChildre()</param>
-        /// <param name="getFileSize">Whether to calculate filesize as the directory tree is being created.  DEFAULT: true.  If false, follow with FindSize()</param>
+        /// <param name="createSubDirs">Whether to create subdirectories recursively or not.  
+        /// If false, follow with CreateChildren()</param>
+        /// <param name="getFileSize">Whether to calculate filesize as the directory tree is being created.  
+        /// If false, follow with FindSize()</param>
         public DirectorySizer(DirectoryInfo pathDI, DirectorySizer parentDir, 
             bool createSubDirs, bool getFileSize)
         {
@@ -182,15 +184,39 @@ namespace DirectorySizeBrowser
             #endregion
         }
 
+        /// <summary>
+        /// Creates a new object representing sizes of nested directories.  The recommended first constructor.
+        /// </summary>
+        /// <param name="pathDI">DirectoryInfo for this root directory.  
+        /// Can call ChooseDirectoryDialog() to get a DirectoryInfo</param>
+        /// <param name="createSubDirs">Whether to create subdirectories recursively or not.  
+        /// If false, follow with CreateChildren()</param>
+        /// <param name="getFileSize">Whether to calculate filesize as the directory tree is being created.  
+        /// If false, follow with FindSize()</param>
         public DirectorySizer(DirectoryInfo pathDI, bool createSubDirs, bool getFileSize)
             : this(pathDI, null, createSubDirs, getFileSize) { }
 
+        /// <summary>
+        /// Creates a new object representing sizes of nested directories that calculates directory sizes.
+        /// </summary>
+        /// <param name="pathDI">DirectoryInfo for this root directory.  
+        /// DEFAULT: calls ChooseDirectoryDialog()</param>
+        /// <param name="createSubDirs">Whether to create subdirectories recursively or not.  
+        /// If false, follow with CreateChildren()</param>
         public DirectorySizer(DirectoryInfo pathDI, bool createSubDirs)
             : this(pathDI, null, createSubDirs, true) { }
 
+        /// <summary>
+        /// Creates a new object representing sizes of nested directories that calculates directory sizes and creates children.
+        /// </summary>
+        /// <param name="pathDI">DirectoryInfo for this root directory.  
+        /// Can call ChooseDirectoryDialog() to get a DirectoryInfo</param>
         public DirectorySizer(DirectoryInfo pathDI)
             : this(pathDI, null, true, true) { }
 
+        /// <summary>
+        /// Creates a new object representing sizes of nested directories that calculates directory sizes and creates children.  Calls a dialog to determine root directory.
+        /// </summary>
         public DirectorySizer()
             : this(ChooseDirectoryDialog(), null, true, true) { }
 
