@@ -5,7 +5,6 @@ using System.Data;
 using System.Linq;
 using System.IO;
 using System.Windows;
-using Forms = System.Windows.Forms;
 
 namespace DirectorySizeBrowser
 {

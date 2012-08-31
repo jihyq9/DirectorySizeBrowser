@@ -11,6 +11,10 @@ using System.Threading.Tasks;
 
 namespace DirectorySizeBrowser
 {
+    /// <summary>
+    /// A linked class that represents directory info such as size and sub directories.
+    /// NOTE:  Use 
+    /// </summary>
     public class DirectorySizer : INotifyPropertyChanged, IComparable<DirectorySizer>
     {
         #region Properties
@@ -116,6 +120,7 @@ namespace DirectorySizeBrowser
         public long SizeLong { get { return thisSize + childSize; } }
 #endregion
 
+        #region Constructors
         /// <summary>
         /// Creates a new object representing sizes of nested directories
         /// </summary>
@@ -177,6 +182,48 @@ namespace DirectorySizeBrowser
             #endregion
         }
 
+        #region Static constructors
+        /// <summary>
+        /// Create an Open Directory dialog and make a DirectorySizer based on the result.  One-step with no filesizes calculated.
+        /// </summary>
+        /// <returns>a DirectorySizer on successful dialog; null otherwise</returns>
+        public static DirectorySizer InitializeDirectorySizer() { return InitializeDirectorySizer(false, false); }
+
+        /// <summary>
+        /// Create an Open Directory dialog and make a DirectorySizer based on the result.  Filesizes calculated.
+        /// </summary>
+        /// <param name="singletiere">Whether to do single-tier or recursive</param>
+        /// <returns>a DirectorySizer on successful dialog; null otherwise</returns>
+        public static DirectorySizer InitializeDirectorySizer(bool singletier) { return InitializeDirectorySizer(singletier, false); }
+
+        /// <summary>
+        /// Create an Open Directory dialog and make a DirectorySizer based on the result
+        /// </summary>
+        /// <returns>a DirectorySizer on successful dialog; null otherwise</returns>
+        /// <param name="singletier">Single-tier or recursive.  If single-tiered, call CreateChildren() after</param>
+        /// <param name="calcFileSize">Whether to calculate sizes while creating</param>
+        public static DirectorySizer InitializeDirectorySizer(bool singletier, bool calcFileSize)
+        {
+            DirectoryInfo dirInfo = new DirectoryInfo(@"C:\");
+            FolderBrowserDialog chooseDir = new FolderBrowserDialog();
+            chooseDir.Description = "Choose a folder to calculate folder sizes from...";
+            if (chooseDir.ShowDialog() == DialogResult.OK) //ok, i.e. folder selected
+            {
+                dirInfo = new DirectoryInfo(chooseDir.SelectedPath);
+            }
+            else //return null if no folder selected
+            {
+                return null;
+            }
+            DirectorySizer newSizer = new DirectorySizer(dirInfo, null, !singletier, calcFileSize);
+
+            return newSizer; //successful selection
+        }
+        #endregion
+
+        #endregion
+
+        #region Delegates
         public void DirectoryAddedListener(object src, long num)
         {
             ++this.subDirCount;
@@ -198,7 +245,9 @@ namespace DirectorySizeBrowser
                 PropertyChanged(this, new PropertyChangedEventArgs(info));
             }
         }
+        #endregion
 
+        #region Functions
         public int CompareTo(DirectorySizer otherDir)//Implements IComparable<T>.  DirectorySizer compares based on Size
         {
             if (otherDir == null)
@@ -247,45 +296,24 @@ namespace DirectorySizeBrowser
             }
             NotifyPropertyChanged("Size");
             NotifyPropertyChanged("SizeRatio");
-            return;
         }
 
-        
         /// <summary>
-        /// Create an Open Directory dialog and make a DirectorySizer based on the result.  One-step with no filesizes calculated.
+        /// Creates a dialog to select the folder to be used
         /// </summary>
-        /// <returns>a DirectorySizer on successful dialog; null otherwise</returns>
-        public static DirectorySizer InitializeDirectorySizer() { return InitializeDirectorySizer(false, false); }
-
-        /// <summary>
-        /// Create an Open Directory dialog and make a DirectorySizer based on the result.  Filesizes calculated.
-        /// </summary>
-        /// <param name="singletiere">Whether to do single-tier or recursive</param>
-        /// <returns>a DirectorySizer on successful dialog; null otherwise</returns>
-        public static DirectorySizer InitializeDirectorySizer(bool singletier) { return InitializeDirectorySizer(singletier, false); }
-
-        /// <summary>
-        /// Create an Open Directory dialog and make a DirectorySizer based on the result
-        /// </summary>
-        /// <returns>a DirectorySizer on successful dialog; null otherwise</returns>
-        /// <param name="singletier">Single-tier or recursive.  If single-tiered, call CreateChildren() after</param>
-        /// <param name="calcFileSize">Whether to calculate sizes while creating</param>
-        public static DirectorySizer InitializeDirectorySizer(bool singletier, bool calcFileSize)
+        /// <returns>The DirectoryInfo corresponding to the selected folder</returns>
+        public static DirectoryInfo ChooseDirectoryDialog()
         {
-            DirectoryInfo dirInfo = new DirectoryInfo(@"C:\");
             FolderBrowserDialog chooseDir = new FolderBrowserDialog();
             chooseDir.Description = "Choose a folder to calculate folder sizes from...";
             if (chooseDir.ShowDialog() == DialogResult.OK) //ok, i.e. folder selected
             {
-                dirInfo = new DirectoryInfo(chooseDir.SelectedPath);
+                return new DirectoryInfo(chooseDir.SelectedPath);
             }
             else //return null if no folder selected
             {
                 return null;
             }
-            DirectorySizer newSizer = new DirectorySizer(dirInfo, null, !singletier, calcFileSize);
-
-            return newSizer; //successful selection
         }
 
         /// <summary>
@@ -319,7 +347,7 @@ namespace DirectorySizeBrowser
                         Console.WriteLine(e.Message);
                     }
                     #endregion
-                    
+
                     if (tiers != null) //if function isn't infinite, decrement
                         --tiers;
                     if (multiThreadTiers > 0 || multiThreadTiers == null)
@@ -377,6 +405,9 @@ namespace DirectorySizeBrowser
             foreach (DirectorySizer subDir in subDirs) //recursively sort
                 subDir.Sort();
         }
+        #endregion
+
+        
 
         #region Obsolete constructor
         /*

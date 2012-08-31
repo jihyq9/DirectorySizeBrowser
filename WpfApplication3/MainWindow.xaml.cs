@@ -157,7 +157,7 @@ namespace DirectorySizeBrowser
 
         private void StartBrowse()
         {
-            dirInfo = DirectorySizer.InitializeDirectorySizer(true);
+            dirInfo = DirectorySizer.InitializeDirectorySizer(true); //create single tier DS
             if (dirInfo != null)
             {
                 mainDock.DataContext = dirInfo;
