@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Collections.ObjectModel;
 using System.Windows.Forms;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace DirectorySizeBrowser
 {
@@ -23,6 +24,7 @@ namespace DirectorySizeBrowser
         public event PropertyChangedEventHandler PropertyChanged;
 
         private ObservableCollection<DirectorySizer> subDirs;
+        private readonly Mutex initializing;
         private bool initializedSubDirs, counted;
         private long subDirCount;
         private long thisSize;
@@ -133,6 +135,7 @@ namespace DirectorySizeBrowser
         public DirectorySizer(DirectoryInfo pathDI, DirectorySizer parentDir, 
             bool createSubDirs, bool getFileSize)
         {
+            initializing = new Mutex(true);
             initializedSubDirs = false;
             counted = false;
             dirPath = pathDI.FullName;
@@ -182,6 +185,8 @@ namespace DirectorySizeBrowser
                 }
             }
             #endregion
+
+            initializing.ReleaseMutex();
         }
 
         /// <summary>
@@ -270,28 +275,31 @@ namespace DirectorySizeBrowser
             }
             
             thisSize = 0;
-            counted = true;
-            try
+
+            if (!counted) //only once
             {
-                FileInfo[] files = dirInfo.GetFiles();
-                foreach (FileInfo file in files)
+                counted = true;
+                try
                 {
-                    thisSize += file.Length;
+                    foreach (FileInfo file in dirInfo.GetFiles())
+                    {
+                        thisSize += file.Length;
+                    }
+                    if (childSizeCircuit != null)
+                        childSizeCircuit(this, thisSize);
                 }
-                if (childSizeCircuit != null)
-                    childSizeCircuit(this, thisSize);
-            }
-            catch (UnauthorizedAccessException unAuthExc)
-            {
-                Console.WriteLine(unAuthExc.Message);
-            }
-            catch (FileNotFoundException fnfe)
-            {
-                Console.WriteLine(fnfe.Message);
-            }
-            catch (DirectoryNotFoundException dnfe)
-            {
-                Console.WriteLine(dnfe.Message);
+                catch (UnauthorizedAccessException unAuthExc)
+                {
+                    Console.WriteLine(unAuthExc.Message);
+                }
+                catch (FileNotFoundException fnfe)
+                {
+                    Console.WriteLine(fnfe.Message);
+                }
+                catch (DirectoryNotFoundException dnfe)
+                {
+                    Console.WriteLine(dnfe.Message);
+                }
             }
             NotifyPropertyChanged("Size");
             NotifyPropertyChanged("SizeRatio");
@@ -319,10 +327,11 @@ namespace DirectorySizeBrowser
         /// Creates children.  Performed after a single-tier initialize
         /// </summary>
         /// <param name="calcFileSize">Whether to calculate sizes while creating children</param>
-        /// <param name="multiThreadTiers">How many tiers past this one to multithread, null if "until done"</param>
+        /// <param name="multiThreadTiers">NOTE: Experimental.  How many tiers past this one to multithread, null if "until done"</param>
         /// <param name="tiers">How many tiers to make children, null if "until done"</param>
         public void CreateChildren(bool calcFileSize, int? multiThreadTiers, int? tiers)
         {
+            initializing.WaitOne();
             if (tiers > 0 || tiers == null) //if function is told to make more
             {
                 if (initializedSubDirs != true)//if hasn't been done before do it
@@ -373,8 +382,7 @@ namespace DirectorySizeBrowser
                     }
                 }
             }
-            else
-                return; //made obvious--if function called but not told to process further tiers, end
+            initializing.ReleaseMutex();
         }
 
         /// <summary>
@@ -382,7 +390,7 @@ namespace DirectorySizeBrowser
         /// </summary>
         private void CreateChild(DirectoryInfo subDirInfo, bool calcFileSize, int? multithreadtiers, int? tiers)
         {
-            System.Console.WriteLine("{0}\\{1}", this.DirPath, subDirInfo.Name);
+            //System.Console.WriteLine("{0}\\{1}", this.DirPath, subDirInfo.Name);
             DirectorySizer subDir = new DirectorySizer(subDirInfo, this, false, calcFileSize);
             subDirs.Add(subDir);
             NotifyPropertyChanged("SubDirs");
@@ -407,7 +415,6 @@ namespace DirectorySizeBrowser
         #endregion
 
         
-
         #region Obsolete constructor
         /*
         public DirectorySizer(DirectoryInfo dir, DirectorySizer parentDir)
