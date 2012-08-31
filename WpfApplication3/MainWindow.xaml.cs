@@ -13,6 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Timers;
 using System.Threading;
+using System.IO;
 
 namespace DirectorySizeBrowser
 {
@@ -21,7 +22,7 @@ namespace DirectorySizeBrowser
     /// </summary>
     public partial class MainWindow : Window
     {
-        DirectorySizer dirInfo;
+        DirectorySizer dirSizer;
         public static RoutedCommand BrowseUpCommand, BrowseDownCommand, RestartCommand, HideToolbarCommand, AboutCommand;
 
         public MainWindow()
@@ -157,13 +158,14 @@ namespace DirectorySizeBrowser
 
         private void StartBrowse()
         {
-            dirInfo = DirectorySizer.InitializeDirectorySizer(true); //create single tier DS
-            if (dirInfo != null)
+            DirectoryInfo chosenDir = DirectorySizer.ChooseDirectoryDialog();
+            if (chosenDir != null)
             {
-                mainDock.DataContext = dirInfo;
-                dirInfo.CreateChildren(true, 0, null);
-                dirInfo.Sort();
-                dirInfo.NotifyPropertyChanged("SubDirs");
+                dirSizer = new DirectorySizer(chosenDir, null, false, true); //create single tier DS
+                mainDock.DataContext = dirSizer;
+                dirSizer.CreateChildren(true, 0, null);
+                dirSizer.Sort();
+                dirSizer.NotifyPropertyChanged("SubDirs");
                 //dirInfo.FindSize();
             }
         }

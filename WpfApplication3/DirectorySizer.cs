@@ -126,8 +126,8 @@ namespace DirectorySizeBrowser
         /// </summary>
         /// <param name="pathDI">DirectoryInfo for this root directory</param>
         /// <param name="parentDir">null if first (base), else the DirectorySizer for the directory containing this one</param>
-        /// <param name="createSubDirs">whether to create subdirectories recursively or not</param>
-        /// <param name="getFileSize">whether to calculate filesize as the directory tree is being created (recommended)</param>
+        /// <param name="createSubDirs">Whether to create subdirectories recursively or not.  DEFAULT: true.  If false, follow with CreateChildre()</param>
+        /// <param name="getFileSize">Whether to calculate filesize as the directory tree is being created.  DEFAULT: true.  If false, follow with FindSize()</param>
         public DirectorySizer(DirectoryInfo pathDI, DirectorySizer parentDir, 
             bool createSubDirs, bool getFileSize)
         {
@@ -182,44 +182,17 @@ namespace DirectorySizeBrowser
             #endregion
         }
 
-        #region Static constructors
-        /// <summary>
-        /// Create an Open Directory dialog and make a DirectorySizer based on the result.  One-step with no filesizes calculated.
-        /// </summary>
-        /// <returns>a DirectorySizer on successful dialog; null otherwise</returns>
-        public static DirectorySizer InitializeDirectorySizer() { return InitializeDirectorySizer(false, false); }
+        public DirectorySizer(DirectoryInfo pathDI, bool createSubDirs, bool getFileSize)
+            : this(pathDI, null, createSubDirs, getFileSize) { }
 
-        /// <summary>
-        /// Create an Open Directory dialog and make a DirectorySizer based on the result.  Filesizes calculated.
-        /// </summary>
-        /// <param name="singletiere">Whether to do single-tier or recursive</param>
-        /// <returns>a DirectorySizer on successful dialog; null otherwise</returns>
-        public static DirectorySizer InitializeDirectorySizer(bool singletier) { return InitializeDirectorySizer(singletier, false); }
+        public DirectorySizer(DirectoryInfo pathDI, bool createSubDirs)
+            : this(pathDI, null, createSubDirs, true) { }
 
-        /// <summary>
-        /// Create an Open Directory dialog and make a DirectorySizer based on the result
-        /// </summary>
-        /// <returns>a DirectorySizer on successful dialog; null otherwise</returns>
-        /// <param name="singletier">Single-tier or recursive.  If single-tiered, call CreateChildren() after</param>
-        /// <param name="calcFileSize">Whether to calculate sizes while creating</param>
-        public static DirectorySizer InitializeDirectorySizer(bool singletier, bool calcFileSize)
-        {
-            DirectoryInfo dirInfo = new DirectoryInfo(@"C:\");
-            FolderBrowserDialog chooseDir = new FolderBrowserDialog();
-            chooseDir.Description = "Choose a folder to calculate folder sizes from...";
-            if (chooseDir.ShowDialog() == DialogResult.OK) //ok, i.e. folder selected
-            {
-                dirInfo = new DirectoryInfo(chooseDir.SelectedPath);
-            }
-            else //return null if no folder selected
-            {
-                return null;
-            }
-            DirectorySizer newSizer = new DirectorySizer(dirInfo, null, !singletier, calcFileSize);
+        public DirectorySizer(DirectoryInfo pathDI)
+            : this(pathDI, null, true, true) { }
 
-            return newSizer; //successful selection
-        }
-        #endregion
+        public DirectorySizer()
+            : this(ChooseDirectoryDialog(), null, true, true) { }
 
         #endregion
 
