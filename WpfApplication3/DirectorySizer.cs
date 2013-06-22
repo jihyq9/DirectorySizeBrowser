@@ -10,7 +10,7 @@ using System.Windows.Forms;
 using System.Threading.Tasks;
 using System.Threading;
 
-namespace DirectorySizeBrowser
+namespace OpenMix.DirectorySizeBrowser
 {
     /// <summary>
     /// A linked class that represents directory info such as size and sub directories, and calculates this

@@ -12,7 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Diagnostics;
 
-namespace DirectorySizeBrowser
+namespace OpenMix.DirectorySizeBrowser
 {
     /// <summary>
     /// Interaction logic for AboutWindow.xaml

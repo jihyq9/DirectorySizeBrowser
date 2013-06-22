@@ -1,7 +1,7 @@
-﻿<Window x:Class="DirectorySizeBrowser.MainWindow"
+﻿<Window x:Class="OpenMix.DirectorySizeBrowser.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:c="clr-namespace:DirectorySizeBrowser"
+        xmlns:c="clr-namespace:OpenMix.DirectorySizeBrowser"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         Icon="/DirectorySizeBrowser;component/icons/Bricks.png"
         Title="Directory Size Browser" Height="350" Width="525">

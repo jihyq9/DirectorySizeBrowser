@@ -10,9 +10,9 @@ using System.Windows;
 [assembly: AssemblyTitle("DirectorySizeBrowser")]
 [assembly: AssemblyDescription("A program to calculate directory sizes")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Open Mix")]
+[assembly: AssemblyCompany("OpenMix")]
 [assembly: AssemblyProduct("Directory Size Browser")]
-[assembly: AssemblyCopyright("Copyright ©  2012")]
+[assembly: AssemblyCopyright("Copyright ©  2013 OpenMix")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

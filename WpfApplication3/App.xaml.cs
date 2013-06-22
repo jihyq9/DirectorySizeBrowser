@@ -6,7 +6,7 @@ using System.Linq;
 using System.IO;
 using System.Windows;
 
-namespace DirectorySizeBrowser
+namespace OpenMix.DirectorySizeBrowser
 {
     /// <summary>
     /// Interaction logic for App.xaml
@@ -15,7 +15,7 @@ namespace DirectorySizeBrowser
     {   
         void AppStartup(object sender, StartupEventArgs e)
         {
-            DirectorySizeBrowser.MainWindow main = new DirectorySizeBrowser.MainWindow();
+            OpenMix.DirectorySizeBrowser.MainWindow main = new OpenMix.DirectorySizeBrowser.MainWindow();
             main.Show();
         }
     }

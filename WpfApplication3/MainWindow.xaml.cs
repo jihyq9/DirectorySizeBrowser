@@ -15,7 +15,7 @@ using System.Timers;
 using System.Threading;
 using System.IO;
 
-namespace DirectorySizeBrowser
+namespace OpenMix.DirectorySizeBrowser
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
