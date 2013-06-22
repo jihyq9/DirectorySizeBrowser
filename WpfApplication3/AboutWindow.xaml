@@ -1,0 +1,36 @@
+﻿<Window x:Class="DirectorySizeBrowser.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="About Directory Size Browser" Height="300" Width="300"
+        ShowInTaskbar="False" WindowStyle="None" SizeToContent="Height">
+    <Window.Resources>
+        <Style x:Key="Elements" TargetType="FrameworkElement">
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="Width" Value="Auto" />
+        </Style>
+        <Style x:Key="Paragraph" BasedOn="{StaticResource Elements}" TargetType="TextBlock">
+            <Setter Property="Padding" Value="3" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Background" Value="White" />
+        </Style>
+        <Style x:Key="CloseButton" BasedOn="{StaticResource Elements}" TargetType="Button">
+            <Setter Property="Padding" Value="20,3,20,3" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="13" />
+        </Style>
+        <Style x:Key="Main" TargetType="StackPanel">
+            <Setter Property="Background" Value="DeepSkyBlue"/>
+        </Style>
+    </Window.Resources>
+    <StackPanel Style="{StaticResource Main}">
+        <TextBlock Style="{StaticResource Paragraph}">Directory Size Browser is a tool created to help myself find where my disk space went</TextBlock>
+        <TextBlock Style="{StaticResource Paragraph}">I hope you find this experiment in WPF useful</TextBlock>
+        <TextBlock Style="{StaticResource Paragraph}">
+            <Hyperlink Name="GitLink" NavigateUri="https://github.com/jihyq9/DirectorySizeBrowser" RequestNavigate="GitLink_RequestNavigate">
+                This project's source code is available on GitHub
+            </Hyperlink>
+        </TextBlock>
+        <TextBlock Style="{StaticResource Paragraph}">Feel free to leave comments and criticism there</TextBlock>
+        <Button Name="OkayButton" Style="{StaticResource CloseButton}" Click="OkayButton_Click">Okay</Button>
+    </StackPanel>
+</Window>
