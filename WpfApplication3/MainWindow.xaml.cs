@@ -100,14 +100,7 @@ namespace OpenMix.DirectorySizeBrowser
 
         private void HideToolbar_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            if (!HideToolbar.IsChecked) //hidden is selected, toggling to visible
-            {
-                HideToolbar.IsChecked = true;
-            }
-            else //visible is selected, toggling to hidden
-            {
-                HideToolbar.IsChecked = false;
-            }
+            HideToolbar.IsChecked = !HideToolbar.IsChecked;
         }
 
         private void HideToolbar_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -161,7 +154,7 @@ namespace OpenMix.DirectorySizeBrowser
             DirectoryInfo chosenDir = DirectorySizer.ChooseDirectoryDialog();
             if (chosenDir != null)
             {
-                dirSizer = new DirectorySizer(chosenDir, null, false, true); //create single tier DS
+                dirSizer = new DirectorySizer(chosenDir, null, false, false); //create single tier DS
                 mainDock.DataContext = dirSizer;
                 dirSizer.CreateChildren(true, 0, null);
                 dirSizer.Sort();

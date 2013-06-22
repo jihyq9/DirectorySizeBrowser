@@ -17,7 +17,7 @@ namespace OpenMix.DirectorySizeBrowser
     /// </summary>
     public class DirectorySizer : INotifyPropertyChanged, IComparable<DirectorySizer>
     {
-        #region Properties
+        #region Fields
         public delegate void BranchIncrease(DirectorySizer src, long amount);
         
         public event BranchIncrease directoryAddedCircuit, childSizeCircuit;
@@ -34,7 +34,7 @@ namespace OpenMix.DirectorySizeBrowser
         private string dirPath;
         #endregion
 
-        #region Accessors
+        #region Properties
         public DirectorySizer ParentDir { get { return parentDir; } }
         public long SubDirCount { get { return subDirCount; } }
         public string DirPath 
