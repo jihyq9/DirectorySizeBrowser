@@ -23,19 +23,16 @@ namespace OpenMix.DirectorySizeBrowser
     public partial class MainWindow : Window
     {
         DirectorySizer dirSizer;
-        public static RoutedCommand BrowseUpCommand, BrowseDownCommand, RestartCommand, HideToolbarCommand, AboutCommand;
+        public static RoutedCommand BrowseUpCommand = new RoutedCommand();
+        public static RoutedCommand BrowseDownCommand = new RoutedCommand();
+        public static RoutedCommand RestartCommand = new RoutedCommand();
+        public static RoutedCommand HideToolbarCommand = new RoutedCommand();
+        public static RoutedCommand AboutCommand = new RoutedCommand();
 
         public MainWindow()
         {
-            BrowseUpCommand = new RoutedCommand();
-            BrowseDownCommand = new RoutedCommand();
-            RestartCommand = new RoutedCommand();
-            HideToolbarCommand = new RoutedCommand();
-            AboutCommand = new RoutedCommand();
-
-            Loaded += MainWindow_Loaded;
-            
             InitializeComponent();
+            Loaded += MainWindow_Loaded;
         }
 
         private void MainWindow_Loaded(object obj, EventArgs args)
@@ -162,5 +159,15 @@ namespace OpenMix.DirectorySizeBrowser
                 //dirInfo.FindSize();
             }
         }
+
+        private void mainDock_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (e.Delta > 0)
+                Scroller.LineUp();
+            else if (e.Delta < 0)
+                Scroller.LineDown();
+        }
+
+        
     }
 }

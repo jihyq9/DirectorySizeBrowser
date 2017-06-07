@@ -102,7 +102,7 @@
             <Setter Property="Panel.ZIndex" Value="-2" />
         </Style>
     </Window.Resources>
-    <DockPanel LastChildFill="True" Name="mainDock" Grid.IsSharedSizeScope="True">
+    <DockPanel LastChildFill="True" Name="mainDock" Grid.IsSharedSizeScope="True" PreviewMouseWheel="mainDock_PreviewMouseWheel">
         <Border DockPanel.Dock="Top" Style="{StaticResource TopBG}">
             <Grid ShowGridLines="False">
                 <Grid.RowDefinitions>
@@ -182,7 +182,7 @@
         </Grid>
         </Border>
 
-        <ScrollViewer>
+        <ScrollViewer Name="Scroller">
             <ListBox  Name="SubDirsInfo" ItemsSource="{Binding Path=SubDirs}">
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
