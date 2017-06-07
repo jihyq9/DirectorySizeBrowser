@@ -105,12 +105,6 @@ namespace OpenMix.DirectorySizeBrowser
             e.CanExecute = true;
         }
 
-        private void BrowseUp_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            DirectorySizer currentDir = mainDock.DataContext as DirectorySizer;
-            mainDock.DataContext = currentDir.ParentDir;
-        }
-
         private void BrowseUp_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             DirectorySizer currentDir = mainDock.DataContext as DirectorySizer;
@@ -118,6 +112,12 @@ namespace OpenMix.DirectorySizeBrowser
                 e.CanExecute = true;
             else
                 e.CanExecute = false;
+        }
+        
+        private void BrowseUp_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            DirectorySizer currentDir = mainDock.DataContext as DirectorySizer;
+            mainDock.DataContext = currentDir.ParentDir;
         }
 
         private void BrowseDown_Click(object sender, RoutedEventArgs e)
